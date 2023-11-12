@@ -36,7 +36,7 @@ class Tilemap:
                 recs.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
         return recs
 
-    def render(self, surf, offset=(0,0)):
+    def render(self, surf, offset=(0,0)): #the offset is for the camera positioning
         #this is to render tiles that have No contact with the player
         # for tile in self.offgrid_tiles:
         #     surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0],tile['pos'][1] - offset[1]))
@@ -46,7 +46,6 @@ class Tilemap:
         #this is to render tiles that have contact with the player
         #for each location in the dictionary
         for loc in self.tilemap:
-            
             #get the values from de dict
             tile = self.tilemap[loc]
             #rend it in the surface 

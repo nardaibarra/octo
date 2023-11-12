@@ -1,10 +1,11 @@
 import pygame
 import sys
-from entities import PhysicsEntity
+from entities import PhysicsEntity, Player
 from tilemap import Tilemap
 from utils import load_image, load_images
 from clouds import Clouds
 from sea import Sea
+from rope import Ropes
 
 
 class Game:
@@ -15,7 +16,7 @@ class Game:
         pygame.init()
         pygame.display.set_caption("octo")
         self.screen = pygame.display.set_mode((self.W,self.H))
-        self.display = pygame.Surface((self.W/2, self.H/2))
+        self.display = pygame.Surface((self.W/2 , self.H/2))
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
 
@@ -26,11 +27,15 @@ class Game:
             'clouds': load_images('clouds'),
             'sea' : load_image('sea.png')
         }
-        #self.clouds = Clouds(self.assets['clouds'], count=5)
+        self.clouds = Clouds(self.assets['clouds'], count=9)
         self.sea = Sea((self.W/2, self.H/2),self.assets['sea'])
-        self.player = PhysicsEntity(self, 'player', (50,50), (14,14))
+        self.player = Player(self, (50, 50), (14, 14))
+        # self.player = PhysicsEntity(self, 'player', (50,50), (12,14))
         self.tilemap = Tilemap(self, tile_size=16)
-        self.scroll = [0,0]
+        self.scroll = [0,0] #start camera at 0, 0
+        
+        self.ropes = Ropes(count=9)
+        
         
 
     def run(self) -> None:
@@ -41,13 +46,23 @@ class Game:
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 1.1 - self.scroll[1])
 
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+            
+            # is_colliding_with_cloud = self.clouds.check_player_collision(self.player.rect())
+            # print(is_colliding_with_cloud)
 
             self.sea.render(self.display,offset=render_scroll)
-            #self.clouds.update()
-            #self.clouds.render(self.display, offset=render_scroll)
-            self.tilemap.render(self.display, offset=render_scroll)
-            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+            self.clouds.update()
+            self.clouds.render(self.display, offset=render_scroll)
+            
+            self.ropes.update()
+            self.ropes.render(self.display, offset=render_scroll)
+            
+            self.tilemap.render(self.display, offset=render_scroll)            
+            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))        
             self.player.render(self.display, offset=render_scroll)
+            
+    
+            
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -59,7 +74,8 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True
                     if event.key == pygame.K_UP:
-                        self.player.velocity[1] = -3
+                        # self.player.velocity[1] = -3
+                        self.player.jump()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
