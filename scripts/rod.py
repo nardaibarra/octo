@@ -15,13 +15,32 @@ class Rod:
         self.vertical_velocity = 0  # Vertical velocity
 
     def rect(self):
+        # Coordinates of one end of the rod
         end_x = self.position[0] + self.length * m.sin(self.angle)
         end_y = self.position[1] + self.length * m.cos(self.angle)
-        return pygame.Rect(end_x - self.radius, end_y - self.radius, self.radius * 2, self.radius * 2)
+
+        # Top-left corner of the rectangle
+        top_left_x = min(self.position[0], end_x) - self.radius
+        top_left_y = min(self.position[1], end_y) - self.radius
+
+        # Dimensions of the rectangle
+        rect_width = abs(end_x - self.position[0]) + 2 * self.radius
+        rect_height = abs(end_y - self.position[1]) + 2 * self.radius
+
+        return pygame.Rect(top_left_x, top_left_y, rect_width, rect_height)
 
     def attach_entity(self, entity):
         self.attached_entity = entity
         self.swinging = True
+        # Calculate the attachment point based on the collision
+        collision_point = entity.pos
+        self.attachment_fraction = self.calculate_attachment_fraction(collision_point)
+
+    def calculate_attachment_fraction(self, collision_point):
+        # Calculate the distance from the rod's pivot to the collision point
+        distance = m.sqrt((collision_point[0] - self.position[0])**2 + (collision_point[1] - self.position[1])**2)
+        # Calculate the fraction along the rod's length
+        return distance / self.length
 
     def detach_entity(self):
         if self.attached_entity:
@@ -54,9 +73,10 @@ class Rod:
                 self.vertical_velocity = 0
 
             # Update the position of the attached entity
-            end_x = self.position[0] + self.length * m.sin(self.angle)
-            end_y = self.position[1] + self.length * m.cos(self.angle) + self.vertical_velocity
-            self.attached_entity.pos = [end_x - self.radius, end_y - self.radius]
+            attached_x = self.position[0] + self.length * self.attachment_fraction * m.sin(self.angle)
+            attached_y = self.position[1] + self.length * self.attachment_fraction * m.cos(self.angle) + self.vertical_velocity
+
+            self.attached_entity.pos = [attached_x - self.radius, attached_y - self.radius]
 
     def draw(self, surface, offset=(0, 0)):
         # Calculate pendulum's end position based on angle
