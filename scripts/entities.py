@@ -44,7 +44,7 @@ class PhysicsEntity:
                 self.pos[1] = entity_rect.y
 
 
-        self.velocity[1] = self.velocity[1] + 0.1 
+        self.velocity[1] = min(3, self.velocity[1] + 0.05) 
 
         damping_factor = 0.98
         self.velocity[0] *= damping_factor
