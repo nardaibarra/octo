@@ -27,7 +27,7 @@ class Game:
             'clouds': load_images('clouds'),
             'sea' : load_image('sea.png')
         }
-        #self.clouds = Clouds(self.assets['clouds'], count=5)
+        self.clouds = Clouds(self.assets['clouds'], count=9)
         self.sea = Sea((self.W/2, self.H/2),self.assets['sea'])
         self.player = PhysicsEntity(self, 'player', (50,50), (14,14))
         self.tilemap = Tilemap(self, tile_size=16)
@@ -45,8 +45,8 @@ class Game:
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.sea.render(self.display,offset=render_scroll)
-            #self.clouds.update()
-            #self.clouds.render(self.display, offset=render_scroll)
+            self.clouds.update()
+            self.clouds.render(self.display, offset=render_scroll)
             self.tilemap.render(self.display, offset=render_scroll)
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
